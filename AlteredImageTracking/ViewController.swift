@@ -141,7 +141,7 @@ extension ViewController: ARSCNViewDelegate {
 
 extension ViewController: RectangleDetectorDelegate {
     /// Called when the app recognized a rectangular shape in the user's envirnment.
-    /// - Tag: NewAlteredImage
+    /// - Tag: CreateReferenceImage
     func rectangleFound(rectangleContent: CIImage) {
         DispatchQueue.main.async {
             
@@ -150,13 +150,33 @@ extension ViewController: RectangleDetectorDelegate {
                 return
             }
             
-            // Try tracking the image that lies within the rectangle the app just detected.
-            guard let newAlteredImage = AlteredImage(rectangleContent) else { return }
-            newAlteredImage.delegate = self
-            self.alteredImage = newAlteredImage
+            guard let referenceImagePixelBuffer = rectangleContent.toPixelBuffer(pixelFormat: kCVPixelFormatType_32BGRA) else {
+                print("Error: Could not convert rectangle content into an ARReferenceImage.")
+                return
+            }
             
-            // Start the session with the newly recognized image.
-            self.runImageTrackingSession(with: [newAlteredImage.referenceImage])
+            /*
+             Set a default physical width of 50 centimeters for the new reference image.
+             While this estimate is likely incorrect, that's fine for the purpose of the
+             app. The content will still appear in the correct location and at the correct
+             scale relative to the image that's being tracked.
+             */
+            let possibleReferenceImage = ARReferenceImage(referenceImagePixelBuffer, orientation: .up, physicalWidth: CGFloat(0.5))
+            
+            possibleReferenceImage.validate { [weak self] (error) in
+                if let error = error {
+                    print("Reference image validation failed: \(error.localizedDescription)")
+                    return
+                }
+
+                // Try tracking the image that lies within the rectangle which the app just detected.
+                guard let newAlteredImage = AlteredImage(rectangleContent, referenceImage: possibleReferenceImage) else { return }
+                newAlteredImage.delegate = self
+                self?.alteredImage = newAlteredImage
+                
+                // Start the session with the newly recognized image.
+                self?.runImageTrackingSession(with: [newAlteredImage.referenceImage])
+            }
         }
     }
 }

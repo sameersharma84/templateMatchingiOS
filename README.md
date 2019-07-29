@@ -86,18 +86,31 @@ Using the first image in the Overview, the camera image is:
 
 The cropped result is: 
 
-![Screenshot of the camera feed that's been cropped to just the rectangular shape that Vision observed.](Documentation/cropped-422.jpg) 
+![Screenshot of the camera feed that's been cropped to just the rectangular shape that Vision observed.](Documentation/cropped-422.jpg)
 
-## Track the Image Using ARKit 
+## Create a Reference Image
 
-Feed the cropped image to ARKit's image tracking feature to get updates on where the image lies within the camera feed when the user moves their device. You do that by creating an [`ARReferenceImage`][1], which provides ARKit everything it needs to locate the image, such as its look and physical size. 
+To prepare to track the cropped image, you create an [`ARReferenceImage`][1], which provides ARKit with everything it needs, like its look and physical size, to locate that image in the physical environment. 
 
 ``` swift
-referenceImage = ARReferenceImage(referenceImagePixelBuffer, orientation: .up, physicalWidth: CGFloat(0.5))
+let possibleReferenceImage = ARReferenceImage(referenceImagePixelBuffer, orientation: .up, physicalWidth: CGFloat(0.5))
 ```
 [View in Source](x-source-tag://CreateReferenceImage)
 
-Then, you create an image tracking session and pass the reference image created above in to the configuration's `trackingImages` property. 
+ARKit requires that reference images contain sufficient detail to be recognizable; for example, a plain white image cannot be tracked. To prevent ARKit from failing to track a reference image, you validate it first before attempting to use it.   
+
+``` swift
+possibleReferenceImage.validate { [weak self] (error) in
+    if let error = error {
+        print("Reference image validation failed: \(error.localizedDescription)")
+        return
+    }
+```
+[View in Source](x-source-tag://CreateReferenceImage)
+
+## Track the Image Using ARKit 
+
+Provide the reference image to ARKit to get updates on where the image lies in the camera feed when the user moves their device. Do that by creating an image tracking session and passing the reference image in to the configuration's [`trackingImages`][9] property. 
 
 ``` swift
 let configuration = ARImageTrackingConfiguration()
@@ -127,9 +140,9 @@ This sample app is bundled with a Core ML model that performs image processing. 
 When Vision finds a rectangular shape in the user's environment, you pass the camera's image data defined by that rectangle into a new [`AlteredImage`](x-source-tag://AlteredImage). 
 
 ``` swift
-guard let newAlteredImage = AlteredImage(rectangleContent) else { return }
+guard let newAlteredImage = AlteredImage(rectangleContent, referenceImage: possibleReferenceImage) else { return }
 ```
-[View in Source](x-source-tag://NewAlteredImage)
+[View in Source](x-source-tag://CreateReferenceImage)
 
 The following code shows how you choose the artistic style to apply to the image by inputting the integer index to the Core ML model. Then, you process the image by calling the Core ML model's [`prediction(from:options:)`][6] routine. 
 
@@ -245,4 +258,5 @@ func update(_ anchor: ARAnchor) {
 [5]:https://developer.apple.com/documentation/arkit/arworldtrackingconfiguration/2968182-maximumnumberoftrackedimages
 [6]:https://developer.apple.com/documentation/coreml/mlmodel/2962866-predictions
 [7]:https://developer.apple.com/documentation/vision/detecting_objects_in_still_images
-[8]:https://developer.apple.com/documentation/arkit/using_vision_in_real_time_with_arkit
+[8]:https://developer.apple.com/documentation/arkit/recognizing_and_labeling_arbitrary_objects
+[9]:https://developer.apple.com/documentation/arkit/arimagetrackingconfiguration/2968176-trackingimages

@@ -59,8 +59,7 @@ class AlteredImage {
     /// A delegate to tell when image tracking fails.
     weak var delegate: AlteredImageDelegate?
     
-    /// - Tag: CreateReferenceImage
-    init?(_ image: CIImage) {
+    init?(_ image: CIImage, referenceImage: ARReferenceImage) {
 
         // Read the required input parameters of the Core ML model.
         var modelInputImageSize: CGSize? = nil
@@ -109,18 +108,7 @@ class AlteredImage {
         }
         modelInputImage = resizedPixelBuffer
         
-        guard let referenceImagePixelBuffer = image.toPixelBuffer(pixelFormat: kCVPixelFormatType_32BGRA) else {
-            print("Error: Could not convert input image into an ARReferenceImage.")
-            return nil
-        }
-        
-        /*
-         Set a default physical width of 50 centimeters for the new reference image.
-         While this estimate is likely incorrect, that's fine for the purpose of the
-         app. The content will still appear in the correct location and at the correct
-         scale relative to the image that's being tracked.
-         */
-        referenceImage = ARReferenceImage(referenceImagePixelBuffer, orientation: .up, physicalWidth: CGFloat(0.5))
+        self.referenceImage = referenceImage
         visualizationNode = VisualizationNode(referenceImage.physicalSize)
         
         visualizationNode.delegate = self
