@@ -38,7 +38,21 @@ class AlteredImage {
      Note that this is static in order to avoid spikes in memory usage when replacing
      instances of the `AlteredImage` class.
      */
-    private static let styleTransferModel = StyleTransferModel()
+    private static var _styleTransferModel: StyleTransferModel!
+    private static var styleTransferModel: StyleTransferModel! {
+        get {
+            if let model = _styleTransferModel { return model }
+            _styleTransferModel = {
+                do {
+                    let configuration = MLModelConfiguration()
+                    return try StyleTransferModel(configuration: configuration)
+                } catch {
+                    fatalError("Couldn't create StyleTransferModel due to: \(error)")
+                }
+            }()
+            return _styleTransferModel
+        }
+    }
     
     /// The input parameters to the Core ML model.
     private var modelInputImage: CVPixelBuffer
