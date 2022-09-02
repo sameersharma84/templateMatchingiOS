@@ -158,7 +158,7 @@ extension ViewController: RectangleDetectorDelegate {
             /*
              Set a default physical width of 50 centimeters for the new reference image.
              While this estimate is likely incorrect, that's fine for the purpose of the
-             app. The content will still appear in the correct location and at the correct
+             app. The content will still appear in the correct location and at the correct			
              scale relative to the image that's being tracked.
              */
             let possibleReferenceImage = ARReferenceImage(referenceImagePixelBuffer, orientation: .up, physicalWidth: CGFloat(0.5))

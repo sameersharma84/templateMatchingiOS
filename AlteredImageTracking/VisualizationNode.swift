@@ -68,6 +68,6 @@ class VisualizationNode: SCNNode {
 
 /// Tells a delegate when the fade animation is done.
 /// In this case, the delegate is an AlteredImage object.
-protocol VisualizationNodeDelegate: class {
+protocol VisualizationNodeDelegate: AnyObject {
     func visualizationNodeDidFinishFade(_ visualizationNode: VisualizationNode)
 }

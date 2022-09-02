@@ -253,6 +253,6 @@ extension AlteredImage: VisualizationNodeDelegate {
  Tells a delegate when image tracking failed.
   In this case, the delegate is the view controller.
  */
-protocol AlteredImageDelegate: class {
+protocol AlteredImageDelegate: AnyObject {
     func alteredImageLostTracking(_ alteredImage: AlteredImage)
 }

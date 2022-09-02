@@ -122,6 +122,6 @@ class RectangleDetector {
     }
 }
 
-protocol RectangleDetectorDelegate: class {
+protocol RectangleDetectorDelegate: AnyObject {
 	func rectangleFound(rectangleContent: CIImage)
 }

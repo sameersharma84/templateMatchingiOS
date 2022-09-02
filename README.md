@@ -1,4 +1,4 @@
-# Tracking and Altering Images
+# Tracking and altering images
 
 Create images from rectangular shapes found in the user's environment, and augment their appearance.
 
@@ -15,7 +15,7 @@ To complete the effect of augmenting an image in the user’s environment, you u
 This sample app uses SceneKit to render its graphics. 
 
 
-## Detect Rectangular Shapes in the User's Environment
+## Detect rectangular shapes in the user's environment
 
 As shown below, you can use Vision in real-time to check the camera feed for rectangles. You perform this check up to 10 times a second by using [`RectangleDetector`](x-source-tag://RectangleDetector) to schedule a repeating timer with an [`updateInterval`](x-source-tag://UpdateInterval) of 0.1 seconds. 
 
@@ -43,7 +43,7 @@ private func search(in pixelBuffer: CVPixelBuffer) {
 
 The sample sets the [`isBusy`](x-source-tag://IsBusy) flag to `false` when a Vision request completes or fails.
 
-## Crop the Camera Feed to an Observed Rectangle
+## Crop the camera feed to an observed rectangle
 
 When Vision finds a rectangle in the camera feed, it provides you with the rectangle's precise coordinates through a [`VNRectangleObservation`][4]. You apply those coordinates to a Core Image perspective correction filter to crop it, leaving you with just the image data inside the rectangular shape. 
 
@@ -88,7 +88,7 @@ The cropped result is:
 
 ![Screenshot of the camera feed that's been cropped to just the rectangular shape that Vision observed.](Documentation/cropped-422.jpg)
 
-## Create a Reference Image
+## Create a reference image
 
 To prepare to track the cropped image, you create an [`ARReferenceImage`][1], which provides ARKit with everything it needs, like its look and physical size, to locate that image in the physical environment. 
 
@@ -97,7 +97,7 @@ let possibleReferenceImage = ARReferenceImage(referenceImagePixelBuffer, orienta
 ```
 [View in Source](x-source-tag://CreateReferenceImage)
 
-ARKit requires that reference images contain sufficient detail to be recognizable; for example, a plain white image cannot be tracked. To prevent ARKit from failing to track a reference image, you validate it first before attempting to use it.   
+ARKit requires that reference images contain sufficient detail to be recognizable; for example, ARKit can't track an image that is a solid color with no features. To ensure ARKit can track a reference image, you validate it first before attempting to use it.   
 
 ``` swift
 possibleReferenceImage.validate { [weak self] (error) in
@@ -108,7 +108,7 @@ possibleReferenceImage.validate { [weak self] (error) in
 ```
 [View in Source](x-source-tag://CreateReferenceImage)
 
-## Track the Image Using ARKit 
+## Track the image using ARKit 
 
 Provide the reference image to ARKit to get updates on where the image lies in the camera feed when the user moves their device. Do that by creating an image tracking session and passing the reference image in to the configuration's [`trackingImages`][9] property. 
 
@@ -130,7 +130,7 @@ func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: AR
 ```
 [View in Source](x-source-tag://ImageWasRecognized)
 
-## Alter the Image's Appearance Using Core ML 
+## Alter the image's appearance using Core ML 
 
 This sample app is bundled with a Core ML model that performs image processing. Given an input image and an integer index, the model outputs a visually modified version of that image in one of eight different styles. The particular style of the output depends on the value of the index you pass in. The first style resembles burned paper, the second style resembles a mosaic, and there are six other styles as shown in the following image.  
 
@@ -156,7 +156,7 @@ The following figure shows the result when you process the input image with a st
 
 ![Screenshot of altered image that's the result of inputting the cropped image in to the Core ML model.](Documentation/altered-512.jpg) 
 
-## Display the Altered Image in Augmented Reality
+## Display the altered image in augmented reality
 
 To complete the augmented reality effect, you cover the original image with the altered image. First, add a visualization node to hold the altered image as a child of the node provided by ARKit. 
 
@@ -181,7 +181,7 @@ The visualization node's contents overlap the original image when SceneKit displ
 ![Screenshot of the altered image overlay on the camera feed.](Documentation/augmentedReality.jpg) 
 
 
-## Continually Update the Image's Appearance
+## Continually update the image's appearance
 
 This sample demonstrates real-time image processing by switching artistic styles over time. By calling `selectNextStyle`, you can make successive alterations of the original image. `styleIndex` is the integer input to the Core ML model that determines the style of the output. 
 
@@ -225,7 +225,7 @@ func visualizationNodeDidFinishFade(_ visualizationNode: VisualizationNode) {
 ```
 [View in Source](x-source-tag://FadeAnimationComplete)
 
-## Respond to Image Tracking Updates
+## Respond to image tracking updates
 
 As part of the image tracking feature, ARKit continues to look for the image throughout the AR session. If the image itself moves, ARKit updates the [`ARImageAnchor`][2] with its corresponding image's new location in the physical environment, and calls your delegate's [`renderer(_:didUpdate:for:)`][3] to notify your app of the change.
 
